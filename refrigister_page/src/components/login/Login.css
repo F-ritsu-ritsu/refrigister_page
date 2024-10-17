@@ -1,0 +1,65 @@
+.login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    width: 100%;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #444444;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  input {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  p {
+    text-align: center;
+    margin-top: 20px;
+    color: #444444;
+  }
+  
+  .error-message {
+    color: #ff4d4d; /* 赤色の文字 */
+    background-color: #ffe6e6; /* 背景色を淡い赤に */
+    border: 1px solid #ff4d4d; /* 赤色の境界線 */
+    padding: 10px; /* パディングを追加 */
+    margin-top: 10px; /* フォームとの間に余白を追加 */
+    border-radius: 5px; /* 角を少し丸くする */
+    font-size: 14px; /* フォントサイズを調整 */
+    text-align: center; /* テキストを中央揃えに */
+  }
+  
