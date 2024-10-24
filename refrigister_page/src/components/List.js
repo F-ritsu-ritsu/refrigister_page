@@ -24,6 +24,7 @@ const List = () => {
   return (
     <div>
       <h1>冷蔵庫の中身</h1>
+      <Link to="/AddFood">新しく食品を追加</Link>
       <table border="1" cellPadding="10">
         <thead>
           <tr>
