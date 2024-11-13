@@ -1,54 +1,85 @@
-import React, { useState } from 'react';
-import Home from './Home';
+import React, { useState, useRef } from 'react';
 import { Link } from "react-router-dom";
 
 const formatDateToISO8601 = (date) => {
   return new Date(date).toISOString().replace('Z', '+09:00');
 };
 
-
 const AddFoodForm = () => {
-  let user_ID=1;
+  let user_ID = 1;
   const [formData, setFormData] = useState({
     name: '',
     quantity: 0,
     tag: '',
     memo: '',
     expiration_date: null,
-    image_url: '',
+    image: null,
     user_id: user_ID,
     original_code: 0,
   });
+  const imageInputRef = useRef(null); // Reference for the image input
 
-  // 入力変更時に呼ばれるハンドラー
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    let submitValue=value;
-    if("quantity"===name){
-      submitValue=parseFloat(submitValue);
+    const { name, value, files } = e.target;
+    let submitValue = value;
+
+    if (name === "quantity") {
+      submitValue = parseFloat(submitValue);
+    } else if (name === "image" && files) {
+      submitValue = files[0];
     }
+
     setFormData({
       ...formData,
       [name]: submitValue,
     });
   };
 
-  // フォーム送信時の処理
+  const handleImageCancel = () => {
+    setFormData({
+      ...formData,
+      image: null,
+    });
+    if (imageInputRef.current) {
+      imageInputRef.current.value = ''; // Clear the file input
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const formattedData = {
-      expiration_date: formatDateToISO8601(formData.expiration_date),
-      image_url: formData.image_url,
-      memo: formData.memo,
-      name: formData.name,
-      original_code: formData.original_code, // 固定値として設定
-      quantity: formData.quantity,
-      tag: formData.tag,
-      user_id: formData.user_id, // 固定値として設定
-    };
-  
+
     try {
+      let imageUrl = '';
+      if (formData.image) {
+        const imageData = new FormData();
+        imageData.append('image', formData.image);
+
+        const imageResponse = await fetch('http://takaryo1010.site:8080/images', {
+          method: 'POST',
+          body: imageData,
+        });
+
+        if (imageResponse.ok) {
+          const imageResult = await imageResponse.json();
+          imageUrl = imageResult;
+          console.log('imageUrl:', imageUrl);
+        } else {
+          alert('画像のアップロードに失敗しました');
+          return;
+        }
+      }
+
+      const formattedData = {
+        expiration_date: formatDateToISO8601(formData.expiration_date),
+        memo: formData.memo,
+        name: formData.name,
+        original_code: formData.original_code,
+        quantity: formData.quantity,
+        tag: formData.tag,
+        user_id: formData.user_id,
+        image_url: imageUrl,
+      };
+      console.log('formattedData:', formattedData);
       const response = await fetch('http://takaryo1010.site:8080/foods', {
         method: 'POST',
         headers: {
@@ -57,9 +88,7 @@ const AddFoodForm = () => {
         },
         body: JSON.stringify(formattedData),
       });
-      console.log(formattedData)
 
-  
       if (response.ok) {
         alert('食品が正常に追加されました');
         setFormData({
@@ -68,10 +97,13 @@ const AddFoodForm = () => {
           tag: '',
           memo: '',
           expiration_date: null,
-          image_url: '',
+          image: null,
           user_id: user_ID,
           original_code: 0,
         });
+        if (imageInputRef.current) {
+          imageInputRef.current.value = ''; // Clear the file input after submission
+        }
       } else {
         alert('食品の追加に失敗しました');
       }
@@ -82,7 +114,7 @@ const AddFoodForm = () => {
 
   return (
     <div>
-      <Link to="/">一覧の戻る</Link>
+      <Link to="/">一覧に戻る</Link>
       <h1>食品を追加する</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -106,12 +138,11 @@ const AddFoodForm = () => {
           />
         </div>
         <div>
-        <label>タグ:</label>
+          <label>タグ:</label>
           <select
             name="tag"
             value={formData.tag}
             onChange={handleChange}
-            required
           >
             <option value="">タグを選択してください</option>
             <option value="野菜">野菜</option>
@@ -135,23 +166,25 @@ const AddFoodForm = () => {
           ></textarea>
         </div>
         <div>
-          <label>有効期限:</label>
+          <label>賞味期限:</label>
           <input
             type="date"
             name="expiration_date"
             value={formData.expiration_date}
             onChange={handleChange}
-            required
           />
         </div>
         <div>
-          <label>画像URL:</label>
+          <label>画像ファイル:</label>
           <input
-            type="text"
-            name="image_url"
-            value={formData.image_url}
+            type="file"
+            name="image"
+            ref={imageInputRef} // Reference for the image input
             onChange={handleChange}
           />
+          {formData.image && (
+            <button type="button" onClick={handleImageCancel}>画像を取り消し</button>
+          )}
         </div>
         <button type="submit">追加</button>
       </form>
