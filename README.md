@@ -1,2 +1,2 @@
 # refrigister_page
-test
+2024/09 ハッカソン開発用
